@@ -1,0 +1,2 @@
+installed flask websockets via:
+pip install git+https://github.com/shoeffner/Flask-Websockets@master#egg=Flask-Websockets

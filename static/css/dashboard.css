@@ -1,0 +1,9 @@
+body{
+    background-color: #b9b9b9;
+}
+.main{
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+}

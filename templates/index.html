@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatguessr Companion Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <link rel="stylesheet" href="./static/css/dashboard.css">
+    <link rel="stylesheet" href="./static/css/snackbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script src="./static/js/dashboard.js"></script>
+    <script src="./static/js/snackbar.js"></script>
+
+    <div class="main">
+        <div>
+            <button class="w3-button w3-border w3-round w3-grey"><i class="fa fa-cog"></i></button>
+            <div class="w3-container w3-border w3-round w3-margin-top">
+                <h3>Settings <i class="fa fa-cog"></i></h3>
+                <hr class="w3-border-black"/>
+                <h4>Streamer Name </h4>
+                <div class="w3-row">
+                    <div class="w3-col s12 m6 l6">
+                        <input class="w3-input w3-border w3-round" type="text" placeholder="streamer_name" id="streamer_name_settings">
+                    </div>
+                    <div class="w3-col s6">
+                        <button class="w3-button w3-border w3-round w3-blue" onclick="save_streamer_name()">Save</button>
+                    </div>
+                </div>
+                <hr class="w3-border-black"/>
+                <h4>Database File</h4>
+                <p class="w3-text-red" style="display:none;" id="db_file_warning">No Database File found, please set manually</p>
+                <div class="w3-row">
+                    <div class="w3-col s12 m6 l6">
+                        <input class="w3-input w3-border w3-round" type="text" placeholder="Database Path" id="db_path">
+                    </div>
+                    <div class="w3-col s6">
+                        <button class="w3-button w3-border w3-round w3-blue" onclick="save_db_path()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    
+
+    <div id="snackbar">Some text some message..</div>
+
+    <script>
+        var socket = io();
+        
+        function save_streamer_name() {
+            var streamer_name = document.getElementById('streamer_name_settings').value;
+            var socket = io();
+            socket.emit('save_streamer_name', streamer_name);
+        }
+        function save_db_path() {
+            var db_path = document.getElementById('db_path').value;
+            var socket = io();
+            socket.emit('save_db_path', db_path);
+        }
+        socket.on('connect', function() {
+            socket.emit('register_dashboard');
+        });
+        function sendTestClick() {
+            socket.emit('dash_test_click');
+        }
+        socket.on('get_dashboard_infos', function(data) {
+            console.log('dashboard_infos:', data);
+            if(Object.keys(data).indexOf('streamer_name') > -1) {
+                document.getElementById('streamer_name_settings').value = data.streamer_name;
+            }
+            if(Object.keys(data).indexOf('db_path') > -1) {
+                document.getElementById('db_path').value = data.db_path;
+            }
+            if(Object.keys(data).indexOf('db_file_exists') > -1) {
+                if(data.db_file_exists == false)
+                    document.getElementById('db_file_warning').style.display = 'block';
+                else
+                    document.getElementById('db_file_warning').style.display = 'none';
+            }
+        });
+        socket.on('refresh_register_dashboard', function(data) {
+            socket.emit('register_dashboard');
+        });
+        socket.on('count', function(data) {
+            console.log('count:', data);
+        });
+        socket.on('snackbar', function(data) {
+            show_snackbar(data);
+        });
+    </script>
+</body>
+</html>

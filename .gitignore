@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+chatguessr_companion_venv/
 
 # Spyder project settings
 .spyderproject

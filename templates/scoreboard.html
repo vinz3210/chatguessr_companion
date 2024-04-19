@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <style>
+        body{
+            background-color: #0000;
+        }
+
+        .scoreboard {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            padding: 2px;
+            color: #fff;
+            font-size: 13px;
+            background-color: var(--bg-dark-transparent);
+            box-shadow: 2px 2px 7px -2px #000;
+            border-radius: 5px;
+            pointer-events: auto;
+            user-select: none;
+            cursor: move;
+            z-index: 24;
+        }
+        .table-container {
+        height: calc(100% - 55px);
+        overflow: auto;
+        background-color: #fff9;
+        }
+
+        .table-container::-webkit-scrollbar {
+        display: none !important;
+        }
+        /* the previous line used to work but now we need scrollbar-width even though it's for FF, weird */
+        .table-container {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+        }
+
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-weight: bold;
+        line-height: 1em;
+        }
+        thead {
+        top: 0;
+        position: sticky;
+        background-color: rgba(0, 0, 0);
+        z-index: 2;
+        }
+        tr {
+        height: 30px;
+        }
+        tbody{
+            
+        color: #333;
+        }
+
+        tbody tr:nth-child(odd) {
+        background-color: rgba(0, 0, 0, 0.1);
+        }
+        tbody tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.2);
+        }
+        tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+        transition: transform 0.1s;
+        transform: scale(1.01);
+        }
+    </style>
+</head>
+<body>
+    <div id="scoreboard" class="scoreboard">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>30 Days</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Player 1</td>
+                        <td>100</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Player 2</td>
+                        <td>90</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Player 3</td>
+                        <td>80</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Player 4</td>
+                        <td>70</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Player 5</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Player 6</td>
+                        <td>50</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Player 7</td>
+                        <td>40</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Player 8</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Player 9</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Player 10</td>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('register_scoreboard');
+    });
+    socket.on('dash_test_click', function(data) {
+        console.log('dash_test_click', data);
+    });
+    socket.on('game_state', function(data) {
+        let game_state = data;
+        if(!game_state){
+            document.getElementById('scoreboard').style.visibility = 'visible';
+        }
+        else{
+            document.getElementById('scoreboard').style.visibility = 'hidden';
+        }
+    });
+    socket.on('leaderboard', function(data) {
+        let mode = data.stats_mode
+        let scores = data[mode]
+        let table = document.querySelector('table tbody');
+        table.innerHTML = '';
+        console.log(data, scores)
+        Object.keys(scores).forEach((player_name, index) => {
+            let row = document.createElement('tr');
+            let rank = document.createElement('td');
+            let player = document.createElement('td');
+            let table_score = document.createElement('td');
+            rank.textContent = index + 1;
+            player.textContent = player_name;
+            table_score.textContent = scores[player_name];
+            row.appendChild(rank);
+            row.appendChild(player);
+            row.appendChild(table_score);
+            table.appendChild(row);
+        });
+    });
+</script>
